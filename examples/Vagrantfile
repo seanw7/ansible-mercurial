@@ -1,0 +1,18 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Ensure role dependencies are in place
+if [ "up", "provision" ].include?(ARGV.first) && File.directory?("roles") &&
+   !(File.directory?("roles/azavea.python") || File.symlink?("roles/azavea.python")) &&
+   !(File.directory?("roles/azavea.pip") || File.symlink?("roles/azavea.pip"))
+  system("ansible-galaxy install --force -r roles.yml -p roles")
+end
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/trusty64"
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "site.yml"
+    ansible.sudo = true
+  end
+end
